@@ -1,12 +1,34 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
+      <router-link to="/">Home</router-link>|
       <router-link to="/about">About</router-link>
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
+
+<script>
+export default {
+  /* 依赖注入的方法注册 */
+  provide() {
+    return {
+      testData: this.testProvide,
+      testMethod: this.logData
+    };
+  },
+  data() {
+    return {
+      testProvide: "依赖注入测试数据"
+    };
+  },
+  methods: {
+    logData() {
+      return "依赖注册测试方法"
+    }
+  }
+};
+</script>
 
 <style lang="less">
 #app {
