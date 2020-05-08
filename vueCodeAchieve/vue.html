@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手写vue 数据绑定</title>
+  </head>
+  <body>
+    <div id="root">
+      <h1>大家好，我的名字叫{{ name }}，我今年{{ age }}岁了！</h1>
+      <p>我会{{ can.watch }}、{{ can.say }}、{{ can.say }}；</p>
+      <p>并且我还{{ can.play.game }}、{{ can.play.girl }}</p>
+    </div>
+
+    <script>
+      let replaceRex = /\{\{(.+?)\}\}/g;
+      function getValueByPath(obj, path) {
+        let paths = path.split(".");
+        /* 
+        for (const path of paths) {
+          obj = obj[path];
+        } 
+        return obj;
+        */
+        return paths.reduce(function(lastObj, thisPath) {
+          return lastObj[thisPath];
+        }, obj);
+      }
+      function compiler(template, data) {
+        let childNodes = template.childNodes; // 取出所有子元素
+        for (let i = 0; i < childNodes.length; i++) {
+          const childNode = childNodes[i]; // 当前子元素
+          let type = childNode.nodeType; // 获取当前子元素的节点类型 1.元素 3.文本
+          if (type === 3) {
+            // 文本节点，可以判断是否有{{}}插值
+            let txt = childNode.nodeValue; // 取出文本节点中的文本内容
+
+            txt = txt.replace(replaceRex, function(_, g) {
+              g = g.trim(); // 插值的键名
+              let value = getValueByPath(data, g);
+              return value;
+            });
+
+            childNode.nodeValue = txt;
+          } else {
+            compiler(childNode, data);
+          }
+        }
+        return template;
+      }
+      /* js简单实现vue的数据绑定 */
+      function myVue(options) {
+        //  内部数据一般使用下划线开头， 只读数据使用$开头
+        this._data = options.data;
+        this._el = options.el;
+
+        // 准备工作 （准备模板）
+        this.$el = this._templateDOM = document.querySelector(this._el);
+        this._parent = this._templateDOM.parentNode;
+        // 渲染工作
+        this.render();
+      }
+      /* 模板渲染 */
+      myVue.prototype.render = function() {
+        this.compiler();
+      };
+      /* 编译，数据和模板结合返回真正的DOM */
+      myVue.prototype.compiler = function() {
+        let realHtmlDOM = this._templateDOM.cloneNode(true); // 拷贝准DOM
+        compiler(realHtmlDOM, this._data);
+        this.update(realHtmlDOM);
+      };
+      /* 将DOM添加到页面中 */
+      myVue.prototype.update = function(realHtmlDOM) {
+        this._parent.replaceChild(
+          realHtmlDOM,
+          document.querySelector(this._el)
+        );
+      };
+      let app = new myVue({
+        el: "#root",
+        data: {
+          name: "张三",
+          age: 16,
+          can: {
+            watch: "看电视",
+            say: "说话",
+            eat: "吃东西",
+            play: {
+              game: "玩游戏",
+              girl: "玩女朋友",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

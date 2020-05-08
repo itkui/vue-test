@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue 虚拟DOM VNode</title>
+  </head>
+  <body>
+    <div id="root">
+      <div>hello1</div>
+      <div style="color: red;font-weight: bold;" class="test">hello2</div>
+      <div>hello3</div>
+      <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+      </ul>
+    </div>
+
+    <script>
+      // 虚拟DOM
+      // 标签节点 { tag: 'div' }
+      // 文本节点 { tag: undefined, value: '文本内容' }
+      // 描述属性 { data: { title: '节点标题', class: 'class-name' } }
+      // 子节点 {children: [ VNode ]}
+
+      class VNode {
+        constructor(tag, data, value, type) {
+          this._tag = tag ? tag.toLowerCase() : tag;
+          this._data = data;
+          this._value = value;
+          this._type = type;
+          this._children = [];
+        }
+
+        appendChild(VNode) {
+          this._children.push(VNode);
+        }
+      }
+
+      /* 使用递归来遍历DOM元素来生成虚拟DOM (vue源码使用栈结构来存储父元素实现递归)*/
+      function generate(node) {
+        let nodeType = node.nodeType;
+        let _vnode = null;
+        if (nodeType === 1) {
+          //  元素节点
+          let nodeName = node.nodeName;
+          let attrs = node.attributes;
+          let _attrObj = {};
+          for (const _attr of attrs) {
+            _attrObj[_attr.nodeName] = _attr.nodeValue;
+          }
+          _vnode = new VNode(nodeName, _attrObj, undefined, nodeType);
+          let childNodes = node.childNodes;
+          for (const childNode of childNodes) {
+            _vnode.appendChild(generate(childNode));
+          }
+        } else if (nodeType === 3) {
+          // 文本节点
+          _vnode = new VNode(undefined, undefined, node.nodeValue, nodeType);
+        }
+        return _vnode;
+      }
+      /* 将虚拟DOM 返回为一个真正的DOM */
+      function parseVNode(vnode) {
+        const { _tag, _type, _data, _value, _children } = vnode;
+        let dom = null;
+        if (_type === 1) {
+          // 为一个元素节点
+          dom = document.createElement(_tag);
+          if (_data) {
+            for (const attr in _data) {
+              dom.setAttribute(attr, _data[attr]);
+            }
+          }
+        }
+        if (_children.length > 0) {
+          for (const _vnode of _children) {
+            if (_vnode._type === 3) {
+              dom.insertBefore(_vnode._value);
+              // TODO: 这里需要往元素中添加文本节点
+            } else if (_vnode._type === 1) {
+              dom.appendChild(parseVNode(_vnode));
+            }
+          }
+        }
+        return dom;
+      }
+
+      let VNodeItem = generate(root);
+      console.log(parseVNode(VNodeItem));
+    </script>
+  </body>
+</html>
