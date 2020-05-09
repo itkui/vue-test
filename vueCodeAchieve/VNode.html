@@ -73,15 +73,12 @@
               dom.setAttribute(attr, _data[attr]);
             }
           }
+        } else {
+          return document.createTextNode(_value);
         }
         if (_children.length > 0) {
           for (const _vnode of _children) {
-            if (_vnode._type === 3) {
-              dom.insertBefore(_vnode._value);
-              // TODO: 这里需要往元素中添加文本节点
-            } else if (_vnode._type === 1) {
-              dom.appendChild(parseVNode(_vnode));
-            }
+            dom.appendChild(parseVNode(_vnode));
           }
         }
         return dom;
