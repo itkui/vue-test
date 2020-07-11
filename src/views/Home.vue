@@ -28,6 +28,7 @@ export default {
     this.$once("hook:beforeDestroy", function() {
       window.removeEventListener("scroll", this.scroll, false);
     });
+    this.$store.dispatch('test')
   }
 };
 </script>

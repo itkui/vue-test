@@ -2,7 +2,9 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link>|
-      <router-link to="/about">About</router-link>
+      <router-link to="/about">About</router-link>|
+      <router-link to="/lodash">Lodash</router-link>|
+      <router-link to="/html2">html2</router-link>
     </div>
     <router-view />
   </div>
@@ -14,19 +16,19 @@ export default {
   provide() {
     return {
       testData: this.testProvide,
-      testMethod: this.logData
+      testMethod: this.logData,
     };
   },
   data() {
     return {
-      testProvide: "依赖注入测试数据"
+      testProvide: '依赖注入测试数据',
     };
   },
   methods: {
     logData() {
-      return "依赖注册测试方法"
-    }
-  }
+      return '依赖注册测试方法';
+    },
+  },
 };
 </script>
 
