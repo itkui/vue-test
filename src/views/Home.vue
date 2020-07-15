@@ -1,34 +1,29 @@
 <template>
   <div class="home">
-    <jsx>
-      <test slot="test"></test>
-      <div style="height: 100vh;"></div>
-    </jsx>
+    <childCheckBox
+      v-model="chooses"
+      v-for="index in 4"
+      :key="index"
+      :index="index"
+    ></childCheckBox>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import Jsx from "@/components/Jsx";
-import Test from "@/components/Test";
+import { ref, watchEffect } from '@vue/composition-api';
+import childCheckBox from '@/components/childCheckBox';
 export default {
-  name: "Home",
-  components: {
-    Jsx,
-    Test
-  },
-  methods: {
-    scroll() {
-      console.log(document.documentElement.scrollTop);
-    }
-  },
-  created() {
-    window.addEventListener("scroll", this.scroll, false);
-    /* 程序化侦听器 实现自动清理 */
-    this.$once("hook:beforeDestroy", function() {
-      window.removeEventListener("scroll", this.scroll, false);
+  setup() {
+    let chooses = ref([]);
+    watchEffect(() => {
+      console.log(chooses.value);
     });
-    this.$store.dispatch('test')
-  }
+    return {
+      chooses,
+    };
+  },
+  components: {
+    childCheckBox,
+  },
 };
 </script>
