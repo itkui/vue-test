@@ -9,6 +9,7 @@ import testPlugins from '@/plugins/testPlugins';
 import VueCompositionAPI from '@vue/composition-api';
 import Vant from 'vant';
 import 'vant/lib/index.css'
+import './registerServiceWorker'
 
 Vue.config.productionTip = false;
 
